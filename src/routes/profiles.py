@@ -49,6 +49,8 @@ async def create_profile(
     user = result.scalars().first()
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found.")
+    if not user.is_active:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found or not active.")
     stmt = select(UserProfileModel).filter_by(user_id=user_id)
     result = await db.execute(stmt)
     exc_profile = result.scalars().first()
