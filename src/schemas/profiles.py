@@ -15,21 +15,25 @@ class ProfileRequestSchema(BaseModel):
     @field_validator("first_name", "last_name")
     @classmethod
     def validate_name(cls, value):
-        return validate_name(value)
+        validate_name(value)
+        return value
 
     @field_validator("gender")
     @classmethod
     def validate_gender(cls, value):
-        return validate_gender(value)
+        validate_gender(value)
+        return value
 
     @field_validator("date_of_birth")
     @classmethod
     def validate_birth_date(cls, value):
-        return validate_birth_date(value)
+        validate_birth_date(value)
+        return value
 
     @field_validator("avatar")
     def validate_image(cls, value):
-        return validate_image(value)
+        validate_image(value)
+        return value
 
 
 class ProfileResponseSchema(BaseModel):
@@ -40,4 +44,3 @@ class ProfileResponseSchema(BaseModel):
     date_of_birth: date
     info: str
     avatar: str
-
