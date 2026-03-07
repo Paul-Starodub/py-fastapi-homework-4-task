@@ -1,5 +1,7 @@
 from datetime import date
 from fastapi import APIRouter, Depends, status, HTTPException, UploadFile, File, Form
+from fastapi.encoders import jsonable_encoder
+from pydantic import ValidationError
 from sqlalchemy.ext.asyncio import AsyncSession
 from config import get_jwt_auth_manager
 from database import get_db, UserModel, UserProfileModel
@@ -31,9 +33,17 @@ async def create_profile(
         jwt_manager.verify_access_token_or_raise(token)
     except Exception as exc:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=str(exc))
-    input_profile = ProfileRequestSchema(
-        first_name=first_name, last_name=last_name, gender=gender, date_of_birth=date_of_birth, info=info, avatar=avatar
-    )
+    try:
+        input_profile = ProfileRequestSchema(
+            first_name=first_name,
+            last_name=last_name,
+            gender=gender,
+            date_of_birth=date_of_birth,
+            info=info,
+            avatar=avatar,
+        )
+    except ValidationError as exc:
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=jsonable_encoder(exc.errors()))
     stmt = select(UserModel).filter_by(id=user_id)
     result = await db.execute(stmt)
     user = result.scalars().first()
