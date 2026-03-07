@@ -55,7 +55,7 @@ async def create_profile(
     result = await db.execute(stmt)
     exc_profile = result.scalars().first()
     if exc_profile:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Profile already exists.")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="User already has a profile.")
     profile = UserProfileModel(
         user_id=user_id,
         first_name=input_profile.first_name,
