@@ -1,15 +1,17 @@
 from datetime import date
+from typing import Annotated
+
 from fastapi import APIRouter, Depends, status, HTTPException, UploadFile, File, Form
 from fastapi.encoders import jsonable_encoder
 from pydantic import ValidationError
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+
 from config import get_jwt_auth_manager
 from database import get_db, UserModel, UserProfileModel
 from schemas.profiles import ProfileRequestSchema
-from sqlalchemy import select
 from security.http import get_token
 from security.interfaces import JWTAuthManagerInterface
-
 
 router = APIRouter()
 
@@ -17,15 +19,15 @@ router = APIRouter()
 @router.post("/users/{user_id}/profile/", status_code=status.HTTP_201_CREATED)
 async def create_profile(
     user_id: int,
-    first_name: str = Form(...),
-    last_name: str = Form(...),
-    gender: str = Form(...),
-    date_of_birth: date = Form(...),
-    info: str = Form(...),
-    avatar: UploadFile = File(...),
-    token: str = Depends(get_token),
-    jwt_manager: JWTAuthManagerInterface = Depends(get_jwt_auth_manager),
-    db: AsyncSession = Depends(get_db),
+    first_name: Annotated[str, Form()],
+    last_name: Annotated[str, Form()],
+    gender: Annotated[str, Form()],
+    info: Annotated[str, Form()],
+    date_of_birth: Annotated[date, Form()],
+    avatar: Annotated[UploadFile, File()],
+    token: Annotated[str, Depends(get_token)],
+    jwt_manager: Annotated[JWTAuthManagerInterface, Depends(get_jwt_auth_manager)],
+    db: Annotated[AsyncSession, Depends(get_db)],
 ):
     if not token:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Authorization header is missing")
